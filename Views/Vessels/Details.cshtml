@@ -1,0 +1,119 @@
+@model CargoParcelTracker.Models.Vessel
+
+@{
+    ViewData["Title"] = "Vessel Details";
+}
+
+<h1>Vessel Details</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">@Model.VesselName</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">IMO Number</dt>
+                    <dd class="col-sm-8"><code>@Model.ImoNumber</code></dd>
+
+                    <dt class="col-sm-4">Vessel Type</dt>
+                    <dd class="col-sm-8"><span class="badge bg-info">@Model.VesselType</span></dd>
+
+                    <dt class="col-sm-4">Deadweight Tonnage</dt>
+                    <dd class="col-sm-8">@Model.Dwt.ToString("N0") MT</dd>
+
+                    <dt class="col-sm-4">Current Status</dt>
+                    <dd class="col-sm-8">
+                        @switch (Model.CurrentStatus)
+                        {
+                            case CargoParcelTracker.Models.VesselStatus.Available:
+                                <span class="badge bg-success">@Model.CurrentStatus</span>
+                                break;
+                            case CargoParcelTracker.Models.VesselStatus.OnVoyage:
+                                <span class="badge bg-primary">@Model.CurrentStatus</span>
+                                break;
+                            case CargoParcelTracker.Models.VesselStatus.Loading:
+                            case CargoParcelTracker.Models.VesselStatus.Discharging:
+                                <span class="badge bg-warning">@Model.CurrentStatus</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@Model.CurrentStatus</span>
+                                break;
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        @if (Model.VoyageAllocations != null && Model.VoyageAllocations.Any())
+        {
+            <div class="card mt-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Voyage Allocations (@Model.VoyageAllocations.Count)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Parcel</th>
+                                    <th>Loading Date</th>
+                                    <th>Discharge Date</th>
+                                    <th>Freight Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var allocation in Model.VoyageAllocations)
+                                {
+                                    <tr>
+                                        <td>@allocation.CargoParcel?.ParcelName</td>
+                                        <td>@allocation.LoadingDate.ToString("MMM dd, yyyy")</td>
+                                        <td>@allocation.DischargeDate.ToString("MMM dd, yyyy")</td>
+                                        <td>$@allocation.FreightRate.ToString("N4")/bbl</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <strong>Quick Actions</strong>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                        Edit Vessel
+                    </a>
+                    <a asp-controller="VoyageAllocations" asp-action="Create" class="btn btn-outline-success">
+                        Create Allocation
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <strong>Vessel Specifications</strong>
+            </div>
+            <div class="card-body">
+                <p class="small mb-1"><strong>Type:</strong> @Model.VesselType</p>
+                <p class="small mb-1"><strong>Capacity:</strong> @Model.Dwt.ToString("N0") MT</p>
+                <p class="small mb-0"><strong>IMO:</strong> @Model.ImoNumber</p>
+            </div>
+        </div>
+    </div>
+</div>

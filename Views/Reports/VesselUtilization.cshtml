@@ -1,0 +1,163 @@
+@model IEnumerable<CargoParcelTracker.ViewModels.VesselUtilizationViewModel>
+
+@{
+    ViewData["Title"] = "Vessel Utilization";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-4">🚢 Vessel Utilization Report</h1>
+        <p class="lead">Fleet performance metrics with days at sea vs. idle calculations</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">← Back to Reports</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <strong>LINQ Query:</strong> <code>Select()</code> with complex nested aggregations,
+            <code>Sum()</code> for days at sea calculations, and <code>OrderByDescending().ThenByDescending()</code>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Fleet Summary</h5>
+                    <span class="badge bg-light text-dark">@Model.Count() Vessels</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-3 border-end p-3 text-center">
+                            <h6 class="text-success">High Utilization</h6>
+                            <h3>@Model.Count(v => v.UtilizationPercentage >= 75)</h3>
+                            <small class="text-muted">≥ 75%</small>
+                        </div>
+                        <div class="col-md-3 border-end p-3 text-center">
+                            <h6 class="text-info">Medium Utilization</h6>
+                            <h3>@Model.Count(v => v.UtilizationPercentage >= 50 && v.UtilizationPercentage < 75)</h3>
+                            <small class="text-muted">50-74%</small>
+                        </div>
+                        <div class="col-md-3 border-end p-3 text-center">
+                            <h6 class="text-warning">Low Utilization</h6>
+                            <h3>@Model.Count(v => v.UtilizationPercentage >= 25 && v.UtilizationPercentage < 50)</h3>
+                            <small class="text-muted">25-49%</small>
+                        </div>
+                        <div class="col-md-3 p-3 text-center">
+                            <h6 class="text-danger">Idle</h6>
+                            <h3>@Model.Count(v => v.UtilizationPercentage < 25)</h3>
+                            <small class="text-muted">&lt; 25%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Vessel Utilization Details</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Vessel Name</th>
+                            <th>IMO Number</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th class="text-center">Total Voyages</th>
+                            <th class="text-center">Days at Sea</th>
+                            <th class="text-center">Days Idle</th>
+                            <th class="text-center">Utilization %</th>
+                            <th class="text-end">Cargo Carried (bbls)</th>
+                            <th class="text-end">Avg Freight Rate</th>
+                            <th class="text-end">Total Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var vessel in Model)
+                        {
+                            var utilizationClass = vessel.UtilizationPercentage switch
+                            {
+                                >= 75 => "table-success",
+                                >= 50 => "table-info",
+                                >= 25 => "table-warning",
+                                _ => "table-danger"
+                            };
+
+                            var utilizationBadge = vessel.UtilizationPercentage switch
+                            {
+                                >= 75 => "bg-success",
+                                >= 50 => "bg-info",
+                                >= 25 => "bg-warning",
+                                _ => "bg-danger"
+                            };
+
+                            <tr class="@utilizationClass">
+                                <td>
+                                    <a asp-controller="Vessels" asp-action="Details" asp-route-id="@vessel.VesselId">
+                                        <strong>@vessel.VesselName</strong>
+                                    </a>
+                                </td>
+                                <td><small class="font-monospace">@vessel.ImoNumber</small></td>
+                                <td><span class="badge bg-secondary">@vessel.VesselType</span></td>
+                                <td><span class="badge bg-primary">@vessel.CurrentStatus</span></td>
+                                <td class="text-center">@vessel.TotalVoyages</td>
+                                <td class="text-center">
+                                    <strong>@vessel.DaysAtSea</strong> days
+                                </td>
+                                <td class="text-center">
+                                    @if (vessel.DaysIdle > 200)
+                                    {
+                                        <span class="text-danger">@vessel.DaysIdle days</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@vessel.DaysIdle days</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @utilizationBadge">
+                                        @vessel.UtilizationPercentage.ToString("F1")%
+                                    </span>
+                                </td>
+                                <td class="text-end">@vessel.TotalCargoCarriedBbls.ToString("N0")</td>
+                                <td class="text-end">$@vessel.AverageFreightRate.ToString("N2")</td>
+                                <td class="text-end">
+                                    <strong>$@vessel.TotalRevenue.ToString("N2")</strong>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="4" class="text-end">Fleet Totals:</th>
+                            <th class="text-center">@Model.Sum(v => v.TotalVoyages)</th>
+                            <th class="text-center">@Model.Sum(v => v.DaysAtSea) days</th>
+                            <th class="text-center">@Model.Sum(v => v.DaysIdle) days</th>
+                            <th class="text-center">@Model.Average(v => v.UtilizationPercentage).ToString("F1")%</th>
+                            <th class="text-end">@Model.Sum(v => v.TotalCargoCarriedBbls).ToString("N0")</th>
+                            <th class="text-end">$@Model.Average(v => v.AverageFreightRate).ToString("N2")</th>
+                            <th class="text-end"><strong>$@Model.Sum(v => v.TotalRevenue).ToString("N2")</strong></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">No Vessel Data</h4>
+        <p class="mb-0">There are no vessels in the system to generate utilization reports.</p>
+    </div>
+}

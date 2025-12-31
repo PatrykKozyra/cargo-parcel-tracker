@@ -1,0 +1,181 @@
+@model IEnumerable<CargoParcelTracker.ViewModels.LaycanCalendarViewModel>
+
+@{
+    ViewData["Title"] = "Laycan Calendar";
+    var daysAhead = ViewBag.DaysAhead ?? 30;
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-4">📅 Laycan Calendar</h1>
+        <p class="lead">Upcoming loading windows with urgency indicators</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">← Back to Reports</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <strong>LINQ Query:</strong> <code>Where(p => p.LaycanStart <= endDate && p.LaycanEnd >= today)</code>
+            with complex date calculations and <code>OrderBy().ThenBy()</code>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="LaycanCalendar" method="get" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="daysAhead" class="form-label">Days Ahead:</label>
+                        <select name="daysAhead" id="daysAhead" class="form-select">
+                            <option value="7" selected="@(daysAhead == 7)">Next 7 days</option>
+                            <option value="14" selected="@(daysAhead == 14)">Next 14 days</option>
+                            <option value="30" selected="@(daysAhead == 30)">Next 30 days</option>
+                            <option value="60" selected="@(daysAhead == 60)">Next 60 days</option>
+                            <option value="90" selected="@(daysAhead == 90)">Next 90 days</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Laycan Summary</h5>
+                    <span class="badge bg-light text-dark">@Model.Count() Loading Windows</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-3 border-end p-3 text-center">
+                            <h6 class="text-danger">Critical</h6>
+                            <h3>@Model.Count(l => l.UrgencyLevel == "Critical")</h3>
+                            <small class="text-muted">Past laycan start</small>
+                        </div>
+                        <div class="col-md-3 border-end p-3 text-center">
+                            <h6 class="text-warning">Urgent</h6>
+                            <h3>@Model.Count(l => l.UrgencyLevel == "Urgent")</h3>
+                            <small class="text-muted">Within 7 days</small>
+                        </div>
+                        <div class="col-md-3 border-end p-3 text-center">
+                            <h6 class="text-info">Soon</h6>
+                            <h3>@Model.Count(l => l.UrgencyLevel == "Soon")</h3>
+                            <small class="text-muted">Within 14 days</small>
+                        </div>
+                        <div class="col-md-3 p-3 text-center">
+                            <h6 class="text-success">Normal</h6>
+                            <h3>@Model.Count(l => l.UrgencyLevel == "Normal")</h3>
+                            <small class="text-muted">Beyond 14 days</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Upcoming Loading Windows</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Urgency</th>
+                            <th>Parcel</th>
+                            <th>Crude Grade</th>
+                            <th class="text-end">Quantity (bbls)</th>
+                            <th>Route</th>
+                            <th>Laycan Start</th>
+                            <th>Laycan End</th>
+                            <th class="text-center">Duration</th>
+                            <th class="text-center">Days Until</th>
+                            <th>Status</th>
+                            <th>Vessel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var laycan in Model)
+                        {
+                            var urgencyClass = laycan.UrgencyLevel switch
+                            {
+                                "Critical" => "table-danger",
+                                "Urgent" => "table-warning",
+                                "Soon" => "table-info",
+                                _ => ""
+                            };
+
+                            var urgencyBadge = laycan.UrgencyLevel switch
+                            {
+                                "Critical" => "bg-danger",
+                                "Urgent" => "bg-warning text-dark",
+                                "Soon" => "bg-info",
+                                _ => "bg-success"
+                            };
+
+                            <tr class="@urgencyClass">
+                                <td>
+                                    <span class="badge @urgencyBadge">@laycan.UrgencyLevel</span>
+                                </td>
+                                <td>
+                                    <a asp-controller="CargoParcels" asp-action="Details" asp-route-id="@laycan.ParcelId">
+                                        <strong>@laycan.ParcelName</strong>
+                                    </a>
+                                </td>
+                                <td>@laycan.CrudeGrade</td>
+                                <td class="text-end">@laycan.QuantityBbls.ToString("N0")</td>
+                                <td>
+                                    <small>@laycan.LoadingPort →<br/>@laycan.DischargePort</small>
+                                </td>
+                                <td>@laycan.LaycanStart.ToString("MMM dd, yyyy")</td>
+                                <td>@laycan.LaycanEnd.ToString("MMM dd, yyyy")</td>
+                                <td class="text-center">@laycan.LaycanDuration days</td>
+                                <td class="text-center">
+                                    @if (laycan.DaysUntilLaycan < 0)
+                                    {
+                                        <span class="text-danger">@Math.Abs(laycan.DaysUntilLaycan) days ago</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@laycan.DaysUntilLaycan days</span>
+                                    }
+                                </td>
+                                <td><span class="badge bg-secondary">@laycan.Status</span></td>
+                                <td>
+                                    @if (laycan.IsAllocated)
+                                    {
+                                        <span class="badge bg-success">✓ @laycan.VesselName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Not Allocated</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">No Upcoming Laycans</h4>
+        <p class="mb-0">There are no cargo parcels with loading windows in the next @daysAhead days.</p>
+    </div>
+}

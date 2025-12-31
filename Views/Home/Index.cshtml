@@ -1,0 +1,106 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3">Cargo Parcel Tracker</h1>
+        <p class="lead">Enterprise-grade crude oil tanker cargo parcel tracking for Shell operations</p>
+    </div>
+</div>
+
+<div class="row mt-4 g-4">
+    <div class="col-md-3">
+        <div class="card stat-card text-white bg-primary h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@ViewBag.VesselCount</h2>
+                <p class="card-text">Total Vessels</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card text-white bg-success h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@ViewBag.ParcelCount</h2>
+                <p class="card-text">Cargo Parcels</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card text-white bg-info h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@ViewBag.AllocationCount</h2>
+                <p class="card-text">Voyage Allocations</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card text-white bg-warning h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@ViewBag.AvailableVesselCount</h2>
+                <p class="card-text">Available Vessels</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 g-4">
+    <div class="col-md-4">
+        <div class="card feature-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Vessels</h5>
+                <p class="card-text">Manage and track crude oil tanker vessels including capacity, status, and operational details.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ VLCC, Suezmax, Aframax types</li>
+                    <li>✓ IMO number tracking</li>
+                    <li>✓ Real-time status updates</li>
+                </ul>
+                <a asp-controller="Vessels" asp-action="Index" class="btn btn-primary">View Vessels</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card feature-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Cargo Parcels</h5>
+                <p class="card-text">Monitor cargo parcel shipments with loading dates, quantities, grades, and current status.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ Multiple crude grades</li>
+                    <li>✓ Laycan management</li>
+                    <li>✓ Quantity tracking in barrels</li>
+                </ul>
+                <a asp-controller="CargoParcels" asp-action="Index" class="btn btn-primary">View Parcels</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card feature-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Voyage Allocations</h5>
+                <p class="card-text">Link cargo parcels to vessels with freight rates and voyage details.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ Freight rate management</li>
+                    <li>✓ Demurrage tracking</li>
+                    <li>✓ Loading & discharge dates</li>
+                </ul>
+                <a asp-controller="VoyageAllocations" asp-action="Index" class="btn btn-primary">View Allocations</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">Enterprise Architecture Features</h4>
+            <p>This application showcases modern .NET development patterns:</p>
+            <ul class="mb-0">
+                <li><strong>Repository Pattern:</strong> Generic and specific repositories with async/await operations</li>
+                <li><strong>Dependency Injection:</strong> .NET's built-in DI container managing repository lifetimes</li>
+                <li><strong>Entity Framework Core:</strong> Code-first approach with migrations and relationships</li>
+                <li><strong>Domain Models:</strong> Strongly-typed C# classes with validation and enums</li>
+                <li><strong>Database Seeding:</strong> Automated test data generation for @ViewBag.VesselCount vessels and @ViewBag.ParcelCount parcels</li>
+            </ul>
+        </div>
+    </div>
+</div>

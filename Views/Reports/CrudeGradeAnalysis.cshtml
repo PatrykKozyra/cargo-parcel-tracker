@@ -1,0 +1,199 @@
+@model IEnumerable<CargoParcelTracker.ViewModels.CrudeGradeAnalysisViewModel>
+
+@{
+    ViewData["Title"] = "Crude Grade Analysis";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-4">🛢️ Crude Grade Analysis</h1>
+        <p class="lead">Market share and freight rate insights by crude oil grade</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">← Back to Reports</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <strong>LINQ Query:</strong> Multi-level <code>GroupBy()</code> with nested <code>SelectMany()</code>,
+            <code>Min()/Max()/Average()</code> aggregations, and <code>OrderByDescending()</code>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Market Overview</h5>
+                    <span class="badge bg-light text-dark">@Model.Count() Crude Grades</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-4 border-end p-3 text-center">
+                            <h6>Total Parcels</h6>
+                            <h3>@Model.Sum(g => g.ParcelCount)</h3>
+                        </div>
+                        <div class="col-md-4 border-end p-3 text-center">
+                            <h6>Total Volume</h6>
+                            <h3>@Model.Sum(g => g.TotalVolumeBbls).ToString("N0")</h3>
+                            <small class="text-muted">barrels</small>
+                        </div>
+                        <div class="col-md-4 p-3 text-center">
+                            <h6>Avg Freight Rate</h6>
+                            <h3>$@Model.Where(g => g.AverageFreightRate > 0).Average(g => g.AverageFreightRate).ToString("N2")</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Crude Grade Details</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Crude Grade</th>
+                            <th class="text-center">Parcel Count</th>
+                            <th class="text-end">Total Volume (bbls)</th>
+                            <th class="text-end">Avg Volume (bbls)</th>
+                            <th class="text-center">Market Share %</th>
+                            <th class="text-center">Allocations</th>
+                            <th class="text-end">Avg Freight Rate</th>
+                            <th class="text-end">Min Freight</th>
+                            <th class="text-end">Max Freight</th>
+                            <th>Most Used Port</th>
+                            <th>Common Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var grade in Model)
+                        {
+                            var marketShareClass = grade.MarketSharePercentage switch
+                            {
+                                >= 20 => "table-success",
+                                >= 10 => "table-info",
+                                >= 5 => "table-warning",
+                                _ => ""
+                            };
+
+                            <tr class="@marketShareClass">
+                                <td>
+                                    <strong>@grade.CrudeGrade</strong>
+                                </td>
+                                <td class="text-center">@grade.ParcelCount</td>
+                                <td class="text-end">@grade.TotalVolumeBbls.ToString("N0")</td>
+                                <td class="text-end">@grade.AverageVolumeBbls.ToString("N0")</td>
+                                <td class="text-center">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar @(grade.MarketSharePercentage >= 20 ? "bg-success" :
+                                                                    grade.MarketSharePercentage >= 10 ? "bg-info" :
+                                                                    grade.MarketSharePercentage >= 5 ? "bg-warning" : "bg-secondary")"
+                                             role="progressbar"
+                                             style="width: @grade.MarketSharePercentage%"
+                                             aria-valuenow="@grade.MarketSharePercentage"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                            @grade.MarketSharePercentage.ToString("F1")%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if (grade.AllocationCount > 0)
+                                    {
+                                        <span class="badge bg-success">@grade.AllocationCount</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">0</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (grade.AverageFreightRate > 0)
+                                    {
+                                        <span>$@grade.AverageFreightRate.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (grade.MinFreightRate > 0)
+                                    {
+                                        <span class="text-success">$@grade.MinFreightRate.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (grade.MaxFreightRate > 0)
+                                    {
+                                        <span class="text-danger">$@grade.MaxFreightRate.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td><small>@grade.MostUsedPort</small></td>
+                                <td><span class="badge bg-secondary">@grade.MostCommonStatus</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Market Share Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach (var grade in Model.OrderByDescending(g => g.MarketSharePercentage).Take(5))
+                        {
+                            <div class="col-md-12 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <strong>@grade.CrudeGrade</strong>
+                                    <span class="badge bg-primary">@grade.MarketSharePercentage.ToString("F1")%</span>
+                                </div>
+                                <div class="progress" style="height: 30px;">
+                                    <div class="progress-bar bg-gradient"
+                                         role="progressbar"
+                                         style="width: @grade.MarketSharePercentage%"
+                                         aria-valuenow="@grade.MarketSharePercentage"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                        @grade.TotalVolumeBbls.ToString("N0") bbls
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">No Crude Grade Data</h4>
+        <p class="mb-0">There are no cargo parcels in the system to analyze crude grades.</p>
+    </div>
+}

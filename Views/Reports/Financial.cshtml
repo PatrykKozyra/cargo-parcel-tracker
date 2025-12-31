@@ -1,0 +1,336 @@
+@model CargoParcelTracker.ViewModels.FinancialSummaryViewModel
+
+@{
+    ViewData["Title"] = "Financial Summary";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-4">💰 Financial Summary</h1>
+        <p class="lead">Revenue analysis and financial performance metrics</p>
+        <span class="badge bg-danger">Admin Only</span>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">← Back to Reports</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <strong>LINQ Query:</strong> Complex financial calculations with <code>Sum()</code> and <code>Average()</code>,
+            <code>GroupBy().ToDictionary()</code> for revenue breakdowns
+        </div>
+    </div>
+</div>
+
+@if (Model != null)
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h6 class="card-title">Total Freight Revenue</h6>
+                    <h2 class="mb-0">$@Model.TotalFreightRevenue.ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h6 class="card-title">Total Demurrage</h6>
+                    <h2 class="mb-0">$@Model.TotalDemurrage.ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h6 class="card-title">Total Allocations</h6>
+                    <h2 class="mb-0">@Model.TotalAllocations</h2>
+                    <small>Active: @Model.ActiveVoyages</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h6 class="card-title">Total Volume</h6>
+                    <h2 class="mb-0">@Model.TotalVolumeTransported.ToString("N0")</h2>
+                    <small>barrels</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Average Rates</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center p-3 border-end">
+                            <h6 class="text-muted">Avg Freight Rate</h6>
+                            <h3 class="text-success">$@Model.AverageFreightRate.ToString("N2")</h3>
+                            <small class="text-muted">per barrel</small>
+                        </div>
+                        <div class="col-6 text-center p-3">
+                            <h6 class="text-muted">Avg Demurrage Rate</h6>
+                            <h3 class="text-warning">$@Model.AverageDemurrageRate.ToString("N2")</h3>
+                            <small class="text-muted">per day</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Operational Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center p-3 border-end">
+                            <h6 class="text-muted">Revenue per Allocation</h6>
+                            <h3 class="text-primary">
+                                $@((Model.TotalAllocations > 0 ? Model.TotalFreightRevenue / Model.TotalAllocations : 0).ToString("N2"))
+                            </h3>
+                        </div>
+                        <div class="col-6 text-center p-3">
+                            <h6 class="text-muted">Revenue per Barrel</h6>
+                            <h3 class="text-info">
+                                $@((Model.TotalVolumeTransported > 0 ? Model.TotalFreightRevenue / Model.TotalVolumeTransported : 0).ToString("N2"))
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Revenue by Vessel Type</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RevenueByVesselType.Any())
+                    {
+                        var maxVesselRevenue = Model.RevenueByVesselType.Max(r => r.Value);
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Vessel Type</th>
+                                    <th class="text-end">Revenue</th>
+                                    <th class="text-end">% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var type in Model.RevenueByVesselType.OrderByDescending(r => r.Value))
+                                {
+                                    var percentage = (type.Value / Model.TotalFreightRevenue * 100);
+                                    <tr>
+                                        <td>
+                                            <strong>@type.Key</strong>
+                                        </td>
+                                        <td class="text-end">
+                                            $@type.Value.ToString("N2")
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge bg-primary">@percentage.ToString("F1")%</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="p-0">
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-primary"
+                                                     role="progressbar"
+                                                     style="width: @percentage%"
+                                                     aria-valuenow="@percentage"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No revenue data by vessel type available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Revenue by Crude Grade</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RevenueByGrade.Any())
+                    {
+                        var topGrades = Model.RevenueByGrade.OrderByDescending(r => r.Value).Take(10);
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Crude Grade</th>
+                                    <th class="text-end">Revenue</th>
+                                    <th class="text-end">% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var grade in topGrades)
+                                {
+                                    var percentage = (grade.Value / Model.TotalFreightRevenue * 100);
+                                    <tr>
+                                        <td>
+                                            <strong>@grade.Key</strong>
+                                        </td>
+                                        <td class="text-end">
+                                            $@grade.Value.ToString("N2")
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge bg-success">@percentage.ToString("F1")%</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="p-0">
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-success"
+                                                     role="progressbar"
+                                                     style="width: @percentage%"
+                                                     aria-valuenow="@percentage"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        @if (Model.RevenueByGrade.Count > 10)
+                        {
+                            <p class="text-muted mt-2 mb-0">
+                                <small>Showing top 10 of @Model.RevenueByGrade.Count grades</small>
+                            </p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No revenue data by crude grade available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Financial Performance Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Total Revenue Stream</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Freight Revenue</span>
+                                    <strong>$@Model.TotalFreightRevenue.ToString("N2")</strong>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-success"
+                                         role="progressbar"
+                                         style="width: @((Model.TotalFreightRevenue / (Model.TotalFreightRevenue + Model.TotalDemurrage) * 100).ToString("F1"))%">
+                                        @((Model.TotalFreightRevenue / (Model.TotalFreightRevenue + Model.TotalDemurrage) * 100).ToString("F1"))%
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Demurrage</span>
+                                    <strong>$@Model.TotalDemurrage.ToString("N2")</strong>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-warning"
+                                         role="progressbar"
+                                         style="width: @((Model.TotalDemurrage / (Model.TotalFreightRevenue + Model.TotalDemurrage) * 100).ToString("F1"))%">
+                                        @((Model.TotalDemurrage / (Model.TotalFreightRevenue + Model.TotalDemurrage) * 100).ToString("F1"))%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Voyage Status</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Active Voyages</span>
+                                    <strong>@Model.ActiveVoyages</strong>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-info"
+                                         role="progressbar"
+                                         style="width: @((Model.TotalAllocations > 0 ? (decimal)Model.ActiveVoyages / Model.TotalAllocations * 100 : 0).ToString("F1"))%">
+                                        @((Model.TotalAllocations > 0 ? (decimal)Model.ActiveVoyages / Model.TotalAllocations * 100 : 0).ToString("F1"))%
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Completed Voyages</span>
+                                    <strong>@(Model.TotalAllocations - Model.ActiveVoyages)</strong>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-secondary"
+                                         role="progressbar"
+                                         style="width: @((Model.TotalAllocations > 0 ? (decimal)(Model.TotalAllocations - Model.ActiveVoyages) / Model.TotalAllocations * 100 : 0).ToString("F1"))%">
+                                        @((Model.TotalAllocations > 0 ? (decimal)(Model.TotalAllocations - Model.ActiveVoyages) / Model.TotalAllocations * 100 : 0).ToString("F1"))%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Key Performance Indicators</h6>
+                            <table class="table table-sm mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td>Total Revenue:</td>
+                                        <td class="text-end"><strong>$@((Model.TotalFreightRevenue + Model.TotalDemurrage).ToString("N2"))</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Avg Revenue/Allocation:</td>
+                                        <td class="text-end">$@((Model.TotalAllocations > 0 ? (Model.TotalFreightRevenue + Model.TotalDemurrage) / Model.TotalAllocations : 0).ToString("N2"))</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Avg Volume/Allocation:</td>
+                                        <td class="text-end">@((Model.TotalAllocations > 0 ? Model.TotalVolumeTransported / Model.TotalAllocations : 0).ToString("N0")) bbls</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Revenue per Barrel:</td>
+                                        <td class="text-end">$@((Model.TotalVolumeTransported > 0 ? (Model.TotalFreightRevenue + Model.TotalDemurrage) / Model.TotalVolumeTransported : 0).ToString("N2"))</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">No Financial Data</h4>
+        <p class="mb-0">There are no allocations in the system to generate financial reports.</p>
+    </div>
+}

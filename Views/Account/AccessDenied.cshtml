@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-danger">
+            <div class="card-header bg-danger text-white text-center">
+                <h3 class="mb-0">🚫 Access Denied</h3>
+            </div>
+            <div class="card-body text-center p-5">
+                <h4 class="text-danger mb-4">You do not have permission to access this resource</h4>
+                <p class="lead">This page requires specific role permissions that your account does not have.</p>
+
+                <div class="alert alert-warning mt-4">
+                    <strong>Role Requirements:</strong>
+                    <ul class="list-unstyled mt-2 mb-0">
+                        <li><strong>Traders:</strong> Can view and create cargo parcels</li>
+                        <li><strong>Admins:</strong> Can manage vessels and approve allocations</li>
+                    </ul>
+                </div>
+
+                <div class="mt-4">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Go to Home</a>
+                    <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-secondary">Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

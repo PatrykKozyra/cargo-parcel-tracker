@@ -1,0 +1,95 @@
+@model IEnumerable<CargoParcelTracker.Models.Vessel>
+
+@{
+    ViewData["Title"] = "Vessels";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Vessels</h1>
+        <p class="lead">Manage crude oil tanker vessels</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Vessel
+        </a>
+    </div>
+    <div class="col-md-6 text-end">
+        <strong>Total Vessels:</strong> @ViewBag.TotalCount
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Vessel Name</th>
+                <th>IMO Number</th>
+                <th>Type</th>
+                <th>DWT</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vessel in Model)
+            {
+                <tr>
+                    <td><strong>@vessel.VesselName</strong></td>
+                    <td><code>@vessel.ImoNumber</code></td>
+                    <td><span class="badge bg-info">@vessel.VesselType</span></td>
+                    <td>@vessel.Dwt.ToString("N0") MT</td>
+                    <td>
+                        @switch (vessel.CurrentStatus)
+                        {
+                            case CargoParcelTracker.Models.VesselStatus.Available:
+                                <span class="badge bg-success">@vessel.CurrentStatus</span>
+                                break;
+                            case CargoParcelTracker.Models.VesselStatus.OnVoyage:
+                                <span class="badge bg-primary">@vessel.CurrentStatus</span>
+                                break;
+                            case CargoParcelTracker.Models.VesselStatus.Loading:
+                            case CargoParcelTracker.Models.VesselStatus.Discharging:
+                                <span class="badge bg-warning">@vessel.CurrentStatus</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@vessel.CurrentStatus</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@vessel.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@vessel.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@vessel.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <p class="mb-0">No vessels found. <a asp-action="Create">Create your first vessel</a>.</p>
+    </div>
+}

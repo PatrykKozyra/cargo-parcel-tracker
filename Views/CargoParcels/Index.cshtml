@@ -1,0 +1,67 @@
+@model IEnumerable<CargoParcelTracker.Models.CargoParcel>
+
+@{
+    ViewData["Title"] = "Cargo Parcels";
+}
+
+<h1>Cargo Parcels</h1>
+<p class="lead">Manage crude oil cargo parcel shipments</p>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <a asp-action="Create" class="btn btn-primary">Create New Parcel</a>
+    </div>
+    <div class="col-md-6 text-end">
+        <strong>Total Parcels:</strong> @ViewBag.TotalCount
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Parcel Name</th>
+                <th>Crude Grade</th>
+                <th>Quantity (bbls)</th>
+                <th>Route</th>
+                <th>Laycan</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var parcel in Model)
+            {
+                <tr>
+                    <td><strong>@parcel.ParcelName</strong></td>
+                    <td>@parcel.CrudeGrade</td>
+                    <td>@parcel.QuantityBbls.ToString("N0")</td>
+                    <td><small>@parcel.LoadingPort → @parcel.DischargePort</small></td>
+                    <td><small>@parcel.LaycanStart.ToString("MMM dd") - @parcel.LaycanEnd.ToString("MMM dd, yyyy")</small></td>
+                    <td><span class="badge bg-primary">@parcel.Status</span></td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@parcel.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@parcel.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@parcel.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cargo-parcel-tracker", "cargo-parcel-tracker.csproj", "{B69FC750-6154-26E8-01E6-336A7BCD01B8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B69FC750-6154-26E8-01E6-336A7BCD01B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B69FC750-6154-26E8-01E6-336A7BCD01B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B69FC750-6154-26E8-01E6-336A7BCD01B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B69FC750-6154-26E8-01E6-336A7BCD01B8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2802E425-42CE-4CA3-9C8A-30AF4D19B3DC}
+	EndGlobalSection
+EndGlobal

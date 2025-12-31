@@ -1,0 +1,87 @@
+@model IEnumerable<CargoParcelTracker.Models.VoyageAllocation>
+
+@{
+    ViewData["Title"] = "Voyage Allocations";
+}
+
+<h1>Voyage Allocations</h1>
+<p class="lead">Manage vessel assignments to cargo parcels</p>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <a asp-action="Create" class="btn btn-primary">Create New Allocation</a>
+    </div>
+    <div class="col-md-6 text-end">
+        <strong>Total Allocations:</strong> @Model.Count()
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Parcel</th>
+                <th>Vessel</th>
+                <th>Crude Grade</th>
+                <th>Quantity (bbls)</th>
+                <th>Loading Date</th>
+                <th>Discharge Date</th>
+                <th>Duration</th>
+                <th>Freight Rate</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var allocation in Model)
+            {
+                var duration = (allocation.DischargeDate - allocation.LoadingDate).Days;
+                <tr>
+                    <td>
+                        <strong>@allocation.CargoParcel?.ParcelName</strong>
+                        <br />
+                        <small class="text-muted">@allocation.CargoParcel?.LoadingPort → @allocation.CargoParcel?.DischargePort</small>
+                    </td>
+                    <td>
+                        <strong>@allocation.Vessel?.VesselName</strong>
+                        <br />
+                        <small class="text-muted">@allocation.Vessel?.VesselType (@allocation.Vessel?.Dwt.ToString("N0") MT)</small>
+                    </td>
+                    <td>@allocation.CargoParcel?.CrudeGrade</td>
+                    <td>@allocation.CargoParcel?.QuantityBbls.ToString("N0")</td>
+                    <td>@allocation.LoadingDate.ToString("MMM dd, yyyy")</td>
+                    <td>@allocation.DischargeDate.ToString("MMM dd, yyyy")</td>
+                    <td>@duration days</td>
+                    <td>$@allocation.FreightRate.ToString("N4")/bbl</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@allocation.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@allocation.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@allocation.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <p class="mb-0">No voyage allocations found. <a asp-action="Create">Create your first allocation</a>.</p>
+    </div>
+}

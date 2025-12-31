@@ -1,0 +1,65 @@
+@model CargoParcelTracker.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="mb-0">🚢 Cargo Parcel Tracker</h3>
+                <p class="mb-0">Sign in to your account</p>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i>👤</i></span>
+                            <input asp-for="UserName" class="form-control" placeholder="Enter username" autofocus />
+                        </div>
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i>🔒</i></span>
+                            <input asp-for="Password" class="form-control" placeholder="Enter password" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <p class="text-muted">Don't have an account?</p>
+                    <a asp-action="Register" class="btn btn-outline-secondary">Create Account</a>
+                </div>
+
+                <div class="alert alert-info mt-4 mb-0">
+                    <small><strong>Test Accounts:</strong></small><br />
+                    <small>Admin: <code>admin / admin123</code></small><br />
+                    <small>Trader: <code>patryk / patryk123</code></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

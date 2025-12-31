@@ -1,0 +1,125 @@
+@model CargoParcelTracker.Models.VoyageAllocation
+
+@{
+    ViewData["Title"] = "Voyage Allocation Details";
+    var duration = (Model.DischargeDate - Model.LoadingDate).Days;
+    var totalFreight = Model.FreightRate * (Model.CargoParcel?.QuantityBbls ?? 0);
+}
+
+<h1>Voyage Allocation Details</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Cargo Parcel Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Parcel Name</dt>
+                    <dd class="col-sm-8"><strong>@Model.CargoParcel?.ParcelName</strong></dd>
+
+                    <dt class="col-sm-4">Crude Grade</dt>
+                    <dd class="col-sm-8">@Model.CargoParcel?.CrudeGrade</dd>
+
+                    <dt class="col-sm-4">Quantity</dt>
+                    <dd class="col-sm-8">@Model.CargoParcel?.QuantityBbls.ToString("N0") barrels</dd>
+
+                    <dt class="col-sm-4">Route</dt>
+                    <dd class="col-sm-8">@Model.CargoParcel?.LoadingPort → @Model.CargoParcel?.DischargePort</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8"><span class="badge bg-primary">@Model.CargoParcel?.Status</span></dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Vessel Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Vessel Name</dt>
+                    <dd class="col-sm-8"><strong>@Model.Vessel?.VesselName</strong></dd>
+
+                    <dt class="col-sm-4">IMO Number</dt>
+                    <dd class="col-sm-8"><code>@Model.Vessel?.ImoNumber</code></dd>
+
+                    <dt class="col-sm-4">Vessel Type</dt>
+                    <dd class="col-sm-8"><span class="badge bg-secondary">@Model.Vessel?.VesselType</span></dd>
+
+                    <dt class="col-sm-4">DWT</dt>
+                    <dd class="col-sm-8">@Model.Vessel?.Dwt.ToString("N0") MT</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">@Model.Vessel?.CurrentStatus</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Voyage Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Loading Date</dt>
+                    <dd class="col-sm-8">@Model.LoadingDate.ToString("MMMM dd, yyyy 'at' HH:mm")</dd>
+
+                    <dt class="col-sm-4">Discharge Date</dt>
+                    <dd class="col-sm-8">@Model.DischargeDate.ToString("MMMM dd, yyyy 'at' HH:mm")</dd>
+
+                    <dt class="col-sm-4">Voyage Duration</dt>
+                    <dd class="col-sm-8"><strong>@duration days</strong></dd>
+
+                    <dt class="col-sm-4">Freight Rate</dt>
+                    <dd class="col-sm-8">$@Model.FreightRate.ToString("N4") per barrel</dd>
+
+                    <dt class="col-sm-4">Demurrage Rate</dt>
+                    <dd class="col-sm-8">$@Model.DemurrageRate.ToString("N2") per day</dd>
+
+                    <dt class="col-sm-4">Total Freight Cost</dt>
+                    <dd class="col-sm-8"><strong class="text-success">$@totalFreight.ToString("N2")</strong></dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <strong>Quick Summary</strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Duration:</strong> @duration days</p>
+                <p class="mb-2"><strong>Volume:</strong> @Model.CargoParcel?.QuantityBbls.ToString("N0") bbls</p>
+                <p class="mb-2"><strong>Total Freight:</strong><br />$@totalFreight.ToString("N2")</p>
+                <p class="mb-0"><strong>Rate:</strong> $@Model.FreightRate.ToString("N4")/bbl</p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <strong>Related Links</strong>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-controller="CargoParcels" asp-action="Details" asp-route-id="@Model.CargoParcel?.Id" class="btn btn-outline-info btn-sm">
+                        View Parcel Details
+                    </a>
+                    <a asp-controller="Vessels" asp-action="Details" asp-route-id="@Model.Vessel?.Id" class="btn btn-outline-primary btn-sm">
+                        View Vessel Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,90 @@
+@model CargoParcelTracker.ViewModels.CargoParcelViewModel
+
+@{
+    ViewData["Title"] = "Edit Cargo Parcel";
+}
+
+<h1>Edit Cargo Parcel</h1>
+<h4>@Model.ParcelName</h4>
+<hr />
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="CreatedDate" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="ParcelName" class="form-label"></label>
+            <input asp-for="ParcelName" class="form-control" />
+            <span asp-validation-for="ParcelName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="CrudeGrade" class="form-label"></label>
+            <input asp-for="CrudeGrade" class="form-control" list="crudeGradeList" />
+            <datalist id="crudeGradeList">
+                <option value="Brent Crude"></option>
+                <option value="WTI (West Texas Intermediate)"></option>
+                <option value="Dubai Crude"></option>
+                <option value="Arab Light"></option>
+                <option value="Bonny Light"></option>
+            </datalist>
+            <span asp-validation-for="CrudeGrade" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="QuantityBbls" class="form-label"></label>
+        <input asp-for="QuantityBbls" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="QuantityBbls" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="LoadingPort" class="form-label"></label>
+            <input asp-for="LoadingPort" class="form-control" />
+            <span asp-validation-for="LoadingPort" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="DischargePort" class="form-label"></label>
+            <input asp-for="DischargePort" class="form-control" />
+            <span asp-validation-for="DischargePort" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="LaycanStart" class="form-label"></label>
+            <input asp-for="LaycanStart" class="form-control" type="date" />
+            <span asp-validation-for="LaycanStart" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label asp-for="LaycanEnd" class="form-label"></label>
+            <input asp-for="LaycanEnd" class="form-control" type="date" />
+            <span asp-validation-for="LaycanEnd" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label asp-for="Status" class="form-label"></label>
+            <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<CargoParcelTracker.Models.CargoParcelStatus>()"></select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <small><strong>Created:</strong> @Model.CreatedDate.ToString("MMMM dd, yyyy 'at' HH:mm UTC")</small>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,197 @@
+@model CargoParcelTracker.ViewModels.DashboardReportViewModel
+
+@{
+    ViewData["Title"] = "Reports Dashboard";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-4">📊 Reports & Analytics</h1>
+        <p class="lead">Advanced business intelligence powered by LINQ queries</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card text-white bg-primary h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@Model.TotalParcels</h2>
+                <p class="card-text">Total Cargo Parcels</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card text-white bg-success h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@Model.TotalVessels</h2>
+                <p class="card-text">Fleet Vessels</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card text-white bg-info h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@Model.TotalAllocations</h2>
+                <p class="card-text">Voyage Allocations</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card feature-card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📦 Parcel Summary</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Comprehensive cargo parcel analysis with grouping, aggregations, and status breakdowns.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ Group by status with aggregations</li>
+                    <li>✓ Volume statistics (Sum, Avg, Min, Max)</li>
+                    <li>✓ Allocation count per status</li>
+                    <li>✓ Percentage of total calculations</li>
+                </ul>
+                <a asp-action="ParcelSummary" class="btn btn-primary">View Report</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card feature-card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🚢 Vessel Utilization</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Calculate vessel efficiency metrics including days at sea, idle time, and revenue generation.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ Complex voyage calculations</li>
+                    <li>✓ Utilization percentage metrics</li>
+                    <li>✓ Revenue analysis by vessel</li>
+                    <li>✓ Nested aggregations with includes</li>
+                </ul>
+                <a asp-action="VesselUtilization" class="btn btn-success">View Report</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card feature-card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">🛢️ Crude Grade Analysis</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Market intelligence on crude grade distribution, freight rates, and port preferences.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ Multi-level grouping operations</li>
+                    <li>✓ Market share calculations</li>
+                    <li>✓ Freight rate analytics (Avg, Min, Max)</li>
+                    <li>✓ Port and status frequency analysis</li>
+                </ul>
+                <a asp-action="CrudeGradeAnalysis" class="btn btn-info">View Report</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card feature-card h-100">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0">📅 Laycan Calendar</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Upcoming loading windows with urgency indicators and allocation status.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ Date range filtering with Where</li>
+                    <li>✓ Complex date calculations</li>
+                    <li>✓ Conditional urgency logic</li>
+                    <li>✓ Multi-field ordering (OrderBy/ThenBy)</li>
+                </ul>
+                <a asp-action="LaycanCalendar" class="btn btn-warning">View Calendar</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card feature-card h-100">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">⚓ Port Activity</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Analyze port operations with loading/discharge statistics and turnaround times.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ Union of multiple groupings</li>
+                    <li>✓ SelectMany for flattening data</li>
+                    <li>✓ Distinct port identification</li>
+                    <li>✓ Average turnaround calculations</li>
+                </ul>
+                <a asp-action="PortActivity" class="btn btn-secondary">View Report</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card feature-card h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">🗺️ Route Analysis</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Common shipping routes with volume, freight rates, and transit time analysis.</p>
+                <ul class="list-unstyled mb-4">
+                    <li>✓ GroupBy multiple fields (composite key)</li>
+                    <li>✓ Route frequency and volume metrics</li>
+                    <li>✓ Average transit day calculations</li>
+                    <li>✓ Crude grade diversity per route</li>
+                </ul>
+                <a asp-action="RouteAnalysis" class="btn btn-dark">View Report</a>
+            </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="col-md-12">
+            <div class="card feature-card h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">💰 Financial Summary (Admin Only)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Comprehensive financial analysis including revenue, demurrage, and profitability metrics.</p>
+                    <ul class="list-unstyled mb-4">
+                        <li>✓ Complex financial calculations</li>
+                        <li>✓ Revenue aggregation by vessel type</li>
+                        <li>✓ Revenue breakdown by crude grade</li>
+                        <li>✓ Active voyage tracking</li>
+                    </ul>
+                    <a asp-action="Financial" class="btn btn-danger">View Financial Report</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="alert alert-success">
+            <h4 class="alert-heading">🚀 LINQ Query Capabilities Demonstrated</h4>
+            <p>These reports showcase advanced LINQ features that make .NET superior for data analytics:</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="mb-0">
+                        <li><strong>GroupBy:</strong> Single and multi-field grouping operations</li>
+                        <li><strong>Aggregations:</strong> Sum, Average, Min, Max, Count</li>
+                        <li><strong>Projections:</strong> Select with complex transformations</li>
+                        <li><strong>Joins:</strong> Include and ThenInclude for eager loading</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="mb-0">
+                        <li><strong>Filtering:</strong> Where clauses with complex conditions</li>
+                        <li><strong>Ordering:</strong> OrderBy, ThenBy for multi-level sorting</li>
+                        <li><strong>Nested Queries:</strong> SelectMany for hierarchical data</li>
+                        <li><strong>Type Safety:</strong> Strongly-typed ViewModels throughout</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

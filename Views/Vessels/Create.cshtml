@@ -1,0 +1,80 @@
+@model CargoParcelTracker.ViewModels.VesselViewModel
+
+@{
+    ViewData["Title"] = "Create Vessel";
+}
+
+<h1>Create New Vessel</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="VesselName" class="form-label"></label>
+                <input asp-for="VesselName" class="form-control" placeholder="e.g., MT Pacific Explorer" />
+                <span asp-validation-for="VesselName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ImoNumber" class="form-label"></label>
+                <input asp-for="ImoNumber" class="form-control" placeholder="e.g., IMO1234567" />
+                <span asp-validation-for="ImoNumber" class="text-danger"></span>
+                <small class="form-text text-muted">Format: IMO followed by 7 digits</small>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="VesselType" class="form-label"></label>
+                    <select asp-for="VesselType" class="form-select" asp-items="Html.GetEnumSelectList<CargoParcelTracker.Models.VesselType>()">
+                        <option value="">-- Select Type --</option>
+                    </select>
+                    <span asp-validation-for="VesselType" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Dwt" class="form-label"></label>
+                    <input asp-for="Dwt" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Dwt" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CurrentStatus" class="form-label"></label>
+                <select asp-for="CurrentStatus" class="form-select" asp-items="Html.GetEnumSelectList<CargoParcelTracker.Models.VesselStatus>()">
+                    <option value="">-- Select Status --</option>
+                </select>
+                <span asp-validation-for="CurrentStatus" class="text-danger"></span>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Create Vessel</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <strong>Vessel Information</strong>
+            </div>
+            <div class="card-body">
+                <h6>Vessel Types:</h6>
+                <ul class="small">
+                    <li><strong>VLCC:</strong> 200,000-320,000 DWT</li>
+                    <li><strong>Suezmax:</strong> 120,000-200,000 DWT</li>
+                    <li><strong>Aframax:</strong> 80,000-120,000 DWT</li>
+                    <li><strong>Panamax:</strong> 60,000-80,000 DWT</li>
+                    <li><strong>Handysize:</strong> 30,000-60,000 DWT</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

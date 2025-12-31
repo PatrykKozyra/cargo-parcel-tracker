@@ -1,0 +1,121 @@
+@model CargoParcelTracker.Models.CargoParcel
+
+@{
+    ViewData["Title"] = "Cargo Parcel Details";
+}
+
+<h1>Cargo Parcel Details</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">@Model.ParcelName</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Crude Grade</dt>
+                    <dd class="col-sm-8"><strong>@Model.CrudeGrade</strong></dd>
+
+                    <dt class="col-sm-4">Quantity</dt>
+                    <dd class="col-sm-8">@Model.QuantityBbls.ToString("N0") barrels</dd>
+
+                    <dt class="col-sm-4">Loading Port</dt>
+                    <dd class="col-sm-8">@Model.LoadingPort</dd>
+
+                    <dt class="col-sm-4">Discharge Port</dt>
+                    <dd class="col-sm-8">@Model.DischargePort</dd>
+
+                    <dt class="col-sm-4">Laycan Window</dt>
+                    <dd class="col-sm-8">
+                        @Model.LaycanStart.ToString("MMM dd, yyyy") - @Model.LaycanEnd.ToString("MMM dd, yyyy")
+                        <br />
+                        <small class="text-muted">(@((Model.LaycanEnd - Model.LaycanStart).Days) day window)</small>
+                    </dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-primary fs-6">@Model.Status</span>
+                    </dd>
+
+                    <dt class="col-sm-4">Created Date</dt>
+                    <dd class="col-sm-8">
+                        <small>@Model.CreatedDate.ToString("MMMM dd, yyyy 'at' HH:mm UTC")</small>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        @if (Model.VoyageAllocations != null && Model.VoyageAllocations.Any())
+        {
+            <div class="card mt-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Vessel Allocations (@Model.VoyageAllocations.Count)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Vessel</th>
+                                    <th>Type</th>
+                                    <th>Loading Date</th>
+                                    <th>Discharge Date</th>
+                                    <th>Freight Rate</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var allocation in Model.VoyageAllocations)
+                                {
+                                    <tr>
+                                        <td><strong>@allocation.Vessel?.VesselName</strong></td>
+                                        <td><span class="badge bg-secondary">@allocation.Vessel?.VesselType</span></td>
+                                        <td>@allocation.LoadingDate.ToString("MMM dd, yyyy")</td>
+                                        <td>@allocation.DischargeDate.ToString("MMM dd, yyyy")</td>
+                                        <td>$@allocation.FreightRate.ToString("N4")/bbl</td>
+                                        <td>
+                                            <a asp-controller="VoyageAllocations" asp-action="Details" asp-route-id="@allocation.Id" class="btn btn-sm btn-info">View</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <strong>Quick Stats</strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Total Volume:</strong><br />@Model.QuantityBbls.ToString("N0") barrels</p>
+                <p class="mb-2"><strong>Route:</strong><br />@Model.LoadingPort<br />↓<br />@Model.DischargePort</p>
+                <p class="mb-0"><strong>Status:</strong> @Model.Status</p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <strong>Actions</strong>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Edit Parcel</a>
+                    <a asp-controller="VoyageAllocations" asp-action="Create" class="btn btn-outline-success">Allocate Vessel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

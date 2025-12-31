@@ -1,0 +1,114 @@
+@model IEnumerable<CargoParcelTracker.ViewModels.ParcelSummaryViewModel>
+
+@{
+    ViewData["Title"] = "Parcel Summary Report";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-4">📦 Parcel Summary Report</h1>
+        <p class="lead">Cargo parcels grouped by status with comprehensive aggregations</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Index" class="btn btn-outline-secondary">← Back to Reports</a>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>LINQ Query:</strong> <code>GroupBy(p => p.Status)</code> with aggregations:
+                <code>Sum(), Average(), Min(), Max(), Count()</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        @foreach (var summary in Model)
+        {
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">@summary.Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th>Parcel Count:</th>
+                                <td class="text-end"><strong>@summary.ParcelCount</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Allocations:</th>
+                                <td class="text-end">@summary.AllocationCount</td>
+                            </tr>
+                            <tr>
+                                <th>% of Total:</th>
+                                <td class="text-end">@summary.PercentageOfTotal.ToString("N1")%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Detailed Statistics by Status</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Status</th>
+                            <th class="text-end">Parcel Count</th>
+                            <th class="text-end">Total Volume (bbls)</th>
+                            <th class="text-end">Avg Volume (bbls)</th>
+                            <th class="text-end">Min Volume (bbls)</th>
+                            <th class="text-end">Max Volume (bbls)</th>
+                            <th class="text-end">Allocations</th>
+                            <th class="text-end">% of Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var summary in Model)
+                        {
+                            <tr>
+                                <td><strong>@summary.Status</strong></td>
+                                <td class="text-end">@summary.ParcelCount</td>
+                                <td class="text-end">@summary.TotalVolumeBbls.ToString("N0")</td>
+                                <td class="text-end">@summary.AverageVolumeBbls.ToString("N0")</td>
+                                <td class="text-end">@summary.MinVolumeBbls.ToString("N0")</td>
+                                <td class="text-end">@summary.MaxVolumeBbls.ToString("N0")</td>
+                                <td class="text-end">@summary.AllocationCount</td>
+                                <td class="text-end">@summary.PercentageOfTotal.ToString("N1")%</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-secondary">
+                        <tr>
+                            <th>TOTAL</th>
+                            <th class="text-end">@Model.Sum(s => s.ParcelCount)</th>
+                            <th class="text-end">@Model.Sum(s => s.TotalVolumeBbls).ToString("N0")</th>
+                            <th class="text-end">@Model.Average(s => s.AverageVolumeBbls).ToString("N0")</th>
+                            <th class="text-end">@Model.Min(s => s.MinVolumeBbls).ToString("N0")</th>
+                            <th class="text-end">@Model.Max(s => s.MaxVolumeBbls).ToString("N0")</th>
+                            <th class="text-end">@Model.Sum(s => s.AllocationCount)</th>
+                            <th class="text-end">100.0%</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">No Data Available</h4>
+        <p class="mb-0">There are no cargo parcels to analyze. Please create some parcels first.</p>
+    </div>
+}
