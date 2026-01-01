@@ -5,6 +5,7 @@ using CargoParcelTracker.Models;
 using CargoParcelTracker.Repositories.Interfaces;
 using CargoParcelTracker.Repositories.Implementations;
 using CargoParcelTracker.Hubs;
+using CargoParcelTracker.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +83,27 @@ builder.Services.AddScoped<ICargoParcelRepository, CargoParcelRepository>();
 builder.Services.AddScoped<IVesselRepository, VesselRepository>();
 builder.Services.AddScoped<IVoyageAllocationRepository, VoyageAllocationRepository>();
 
+// Register Caching Services
+// Memory cache for fast in-process caching
+builder.Services.AddMemoryCache();
+
+// Distributed cache (currently using in-memory implementation)
+// Can be swapped for Redis or SQL Server distributed cache in production
+builder.Services.AddDistributedMemoryCache();
+
+// Custom cache service with statistics tracking
+builder.Services.AddSingleton<ICacheService, CacheService>();
+
+// Performance monitoring service
+builder.Services.AddSingleton<IPerformanceMonitoringService, PerformanceMonitoringService>();
+
+// Response caching middleware for HTTP responses
+builder.Services.AddResponseCaching();
+
+// Register Background Services (IHostedService)
+// ParcelExpirationService runs every 5 minutes to auto-expire nominated parcels past their laycan
+builder.Services.AddHostedService<ParcelExpirationService>();
+
 var app = builder.Build();
 
 // Seed database with sample data and identity
@@ -126,6 +148,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Enable response caching middleware
+app.UseResponseCaching();
 
 app.UseRouting();
 

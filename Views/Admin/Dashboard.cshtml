@@ -1,0 +1,184 @@
+@model CargoParcelTracker.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard - Cache & Performance";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-4">🔧 Admin Dashboard</h1>
+        <p class="lead">System monitoring, cache statistics, and performance metrics</p>
+    </div>
+</div>
+
+<!-- Cache Statistics Section -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card text-white bg-primary h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@Model.CacheStatistics.Hits</h2>
+                <p class="card-text">Cache Hits</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card text-white bg-warning h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@Model.CacheStatistics.Misses</h2>
+                <p class="card-text">Cache Misses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card text-white bg-info h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@Model.CacheStatistics.Total</h2>
+                <p class="card-text">Total Requests</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card text-white bg-success h-100">
+            <div class="card-body text-center">
+                <h2 class="display-4 mb-3">@Model.CacheStatistics.HitRate.ToString("F1")%</h2>
+                <p class="card-text">Hit Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">🔨 Cache Actions</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="ClearCache" method="post" onsubmit="return confirm('Are you sure you want to clear all caches? This may temporarily slow down the application.');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Clear All Caches
+                    </button>
+                    <p class="text-muted mt-2 mb-0">
+                        Clearing caches will force the system to reload data from the database. Caches will automatically rebuild on next request.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Statistics Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">⚡ Performance Statistics</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Total Operations Measured:</strong> @Model.PerformanceStatistics.TotalOperations</p>
+
+                @if (Model.PerformanceStatistics.SlowestOperations.Any())
+                {
+                    <h6 class="mt-4">Top 10 Slowest Operations:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Operation Name</th>
+                                    <th>Count</th>
+                                    <th>Avg (ms)</th>
+                                    <th>Min (ms)</th>
+                                    <th>Max (ms)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var stat in Model.PerformanceStatistics.SlowestOperations)
+                                {
+                                    <tr>
+                                        <td>@stat.OperationName</td>
+                                        <td>@stat.Count</td>
+                                        <td>
+                                            <span class="badge @(stat.AverageMs > 1000 ? "bg-danger" : stat.AverageMs > 500 ? "bg-warning" : "bg-success")">
+                                                @stat.AverageMs.ToString("F2")
+                                            </span>
+                                        </td>
+                                        <td>@stat.MinMs</td>
+                                        <td>@stat.MaxMs</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No performance data available yet. Operations will be tracked as they occur.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Performance Statistics -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">📊 All Operation Statistics</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.PerformanceStatistics.OperationStats.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Operation Name</th>
+                                    <th>Executions</th>
+                                    <th>Average Time</th>
+                                    <th>Min Time</th>
+                                    <th>Max Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var stat in Model.PerformanceStatistics.OperationStats)
+                                {
+                                    <tr>
+                                        <td><code>@stat.OperationName</code></td>
+                                        <td>@stat.Count</td>
+                                        <td>@stat.AverageMs.ToString("F2") ms</td>
+                                        <td>@stat.MinMs ms</td>
+                                        <td>@stat.MaxMs ms</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No operations have been measured yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h4 class="alert-heading">ℹ️ Caching System Information</h4>
+            <p>This application uses .NET's built-in caching system:</p>
+            <ul class="mb-0">
+                <li><strong>IMemoryCache:</strong> In-memory caching for fast, single-server scenarios</li>
+                <li><strong>IDistributedCache:</strong> Ready for Redis or SQL Server distributed caching in production</li>
+                <li><strong>Response Caching:</strong> HTTP response caching for API endpoints</li>
+                <li><strong>Performance Monitoring:</strong> Automatic query time tracking and statistics</li>
+                <li><strong>Cache Invalidation:</strong> Automatic cache clearing when data changes</li>
+            </ul>
+        </div>
+    </div>
+</div>

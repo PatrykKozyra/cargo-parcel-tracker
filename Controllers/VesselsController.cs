@@ -3,25 +3,32 @@ using Microsoft.AspNetCore.Authorization;
 using CargoParcelTracker.Models;
 using CargoParcelTracker.Repositories.Interfaces;
 using CargoParcelTracker.ViewModels;
+using CargoParcelTracker.Services;
 
 namespace CargoParcelTracker.Controllers
 {
     /// <summary>
     /// Controller for managing Vessel entities with full CRUD operations
-    /// Demonstrates async/await, model validation, and strongly-typed actions
+    /// Demonstrates async/await, model validation, caching, and performance monitoring
     /// Admin-only access for vessel management
     /// </summary>
     [Authorize(Roles = "Admin")]
     public class VesselsController : Controller
     {
         private readonly IVesselRepository _vesselRepository;
+        private readonly ICacheService _cacheService;
+        private readonly IPerformanceMonitoringService _performanceService;
         private readonly ILogger<VesselsController> _logger;
 
         public VesselsController(
             IVesselRepository vesselRepository,
+            ICacheService cacheService,
+            IPerformanceMonitoringService performanceService,
             ILogger<VesselsController> logger)
         {
             _vesselRepository = vesselRepository ?? throw new ArgumentNullException(nameof(vesselRepository));
+            _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
+            _performanceService = performanceService ?? throw new ArgumentNullException(nameof(performanceService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -31,25 +38,52 @@ namespace CargoParcelTracker.Controllers
         {
             try
             {
-                IEnumerable<Vessel> vessels;
+                using (_performanceService.MeasureOperation("Vessels.Index"))
+                {
+                    IEnumerable<Vessel> vessels;
+                    string cacheKey;
 
-                if (type.HasValue)
-                {
-                    vessels = await _vesselRepository.GetVesselsByTypeAsync(type.Value);
-                    ViewBag.FilterType = type.Value.ToString();
-                }
-                else if (status.HasValue)
-                {
-                    vessels = await _vesselRepository.GetVesselsByStatusAsync(status.Value);
-                    ViewBag.FilterStatus = status.Value.ToString();
-                }
-                else
-                {
-                    vessels = await _vesselRepository.GetAllAsync();
-                }
+                    if (type.HasValue)
+                    {
+                        cacheKey = CacheKeys.VesselsByStatus(type.Value.ToString());
+                        vessels = _cacheService.Get<IEnumerable<Vessel>>(cacheKey);
 
-                ViewBag.TotalCount = await _vesselRepository.CountAsync();
-                return View(vessels);
+                        if (vessels == null)
+                        {
+                            vessels = await _vesselRepository.GetVesselsByTypeAsync(type.Value);
+                            _cacheService.Set(cacheKey, vessels, TimeSpan.FromMinutes(5));
+                        }
+
+                        ViewBag.FilterType = type.Value.ToString();
+                    }
+                    else if (status.HasValue)
+                    {
+                        cacheKey = CacheKeys.VesselsByStatus(status.Value.ToString());
+                        vessels = _cacheService.Get<IEnumerable<Vessel>>(cacheKey);
+
+                        if (vessels == null)
+                        {
+                            vessels = await _vesselRepository.GetVesselsByStatusAsync(status.Value);
+                            _cacheService.Set(cacheKey, vessels, TimeSpan.FromMinutes(5));
+                        }
+
+                        ViewBag.FilterStatus = status.Value.ToString();
+                    }
+                    else
+                    {
+                        // Cache all vessels for 5 minutes
+                        vessels = _cacheService.Get<IEnumerable<Vessel>>(CacheKeys.AllVessels);
+
+                        if (vessels == null)
+                        {
+                            vessels = await _vesselRepository.GetAllAsync();
+                            _cacheService.Set(CacheKeys.AllVessels, vessels, TimeSpan.FromMinutes(5));
+                        }
+                    }
+
+                    ViewBag.TotalCount = await _vesselRepository.CountAsync();
+                    return View(vessels);
+                }
             }
             catch (Exception ex)
             {
@@ -125,6 +159,11 @@ namespace CargoParcelTracker.Controllers
 
                 await _vesselRepository.AddAsync(vessel);
                 await _vesselRepository.SaveChangesAsync();
+
+                // Invalidate vessel caches when data changes
+                _cacheService.Remove(CacheKeys.AllVessels);
+                _cacheService.Remove(CacheKeys.VesselsByStatus(vessel.CurrentStatus.ToString()));
+                _cacheService.Remove(CacheKeys.DashboardStats);
 
                 _logger.LogInformation("Created new vessel: {VesselName} ({ImoNumber})",
                     vessel.VesselName, vessel.ImoNumber);
