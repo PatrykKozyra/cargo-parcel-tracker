@@ -1,0 +1,118 @@
+
+
+/* SignalR Toast Notifications */
+.toast-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    min-width: 350px;
+    max-width: 450px;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-xl);
+    transform: translateX(500px);
+    transition: transform 0.3s ease-out;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+}
+
+.toast-notification::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.toast-notification.toast-success::before {
+    background: var(--success);
+}
+
+.toast-notification.toast-info::before {
+    background: var(--info);
+}
+
+.toast-notification.toast-warning::before {
+    background: var(--warning);
+}
+
+.toast-notification.toast-danger::before {
+    background: var(--danger);
+}
+
+.toast-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: var(--secondary);
+}
+
+.toast-body {
+    padding: 1rem 1.25rem;
+    color: var(--gray-700);
+}
+
+.btn-close-toast {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--gray-500);
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.btn-close-toast:hover {
+    color: var(--gray-800);
+}
+
+/* Pulse animation for updated rows */
+@keyframes pulseRow {
+    0%, 100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+}
+
+.pulse-row {
+    animation: pulseRow 1s ease-in-out 2;
+}
+
+/* Fade out animation for deleted rows */
+@keyframes fadeOutRow {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+}
+
+.fade-out-row {
+    animation: fadeOutRow 0.5s ease-out forwards;
+}
+
+@media (max-width: 768px) {
+    .toast-notification {
+        top: 60px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+}

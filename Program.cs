@@ -4,11 +4,15 @@ using CargoParcelTracker.Data;
 using CargoParcelTracker.Models;
 using CargoParcelTracker.Repositories.Interfaces;
 using CargoParcelTracker.Repositories.Implementations;
+using CargoParcelTracker.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add SignalR for real-time updates
+builder.Services.AddSignalR();
 
 // Add API Controllers with JSON options
 builder.Services.AddControllers()
@@ -29,8 +33,8 @@ builder.Services.AddSwaggerGen(c =>
         Description = "RESTful API for managing crude oil tanker cargo parcels, vessels, and voyage allocations",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
-            Name = "Shell Cargo Operations",
-            Email = "cargo-ops@shell.com"
+            Name = "Maritime Logistics Inc",
+            Email = "info@maritimelogistics.com"
         }
     });
 });
@@ -133,5 +137,8 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllers(); // Map API controllers
+
+// Map SignalR hub
+app.MapHub<ParcelStatusHub>("/hubs/parcelStatus");
 
 app.Run();

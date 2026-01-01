@@ -48,13 +48,26 @@
         <tbody>
             @foreach (var parcel in Model)
             {
-                <tr>
+                var statusBadgeClass = parcel.Status switch
+                {
+                    CargoParcelTracker.Models.CargoParcelStatus.Planned => "secondary",
+                    CargoParcelTracker.Models.CargoParcelStatus.Nominated => "info",
+                    CargoParcelTracker.Models.CargoParcelStatus.Confirmed => "primary",
+                    CargoParcelTracker.Models.CargoParcelStatus.Loading => "warning",
+                    CargoParcelTracker.Models.CargoParcelStatus.InTransit => "info",
+                    CargoParcelTracker.Models.CargoParcelStatus.Discharging => "warning",
+                    CargoParcelTracker.Models.CargoParcelStatus.Completed => "success",
+                    CargoParcelTracker.Models.CargoParcelStatus.Cancelled => "danger",
+                    _ => "secondary"
+                };
+
+                <tr data-parcel-id="@parcel.Id">
                     <td><strong>@parcel.ParcelName</strong></td>
                     <td>@parcel.CrudeGrade</td>
                     <td>@parcel.QuantityBbls.ToString("N0")</td>
                     <td><small>@parcel.LoadingPort → @parcel.DischargePort</small></td>
                     <td><small>@parcel.LaycanStart.ToString("MMM dd") - @parcel.LaycanEnd.ToString("MMM dd, yyyy")</small></td>
-                    <td><span class="badge bg-primary">@parcel.Status</span></td>
+                    <td><span class="badge bg-@statusBadgeClass parcel-status-badge">@parcel.Status</span></td>
                     <td>
                         <a asp-action="Details" asp-route-id="@parcel.Id" class="btn btn-sm btn-info">Details</a>
                         <a asp-action="Edit" asp-route-id="@parcel.Id" class="btn btn-sm btn-warning">Edit</a>
@@ -65,3 +78,8 @@
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="~/js/signalr-client.js"></script>
+}

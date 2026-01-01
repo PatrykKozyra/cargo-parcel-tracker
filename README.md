@@ -2,7 +2,7 @@
 
 ## Project Purpose
 
-This is an ASP.NET Core MVC web application designed for tracking cargo parcels on crude oil tankers at Shell. The application provides a comprehensive system for managing and monitoring crude oil shipments across different vessels and ports.
+This is an ASP.NET Core MVC web application designed for tracking cargo parcels on crude oil tankers. The application provides a comprehensive system for managing and monitoring crude oil shipments across different vessels and ports.
 
 ## Features
 
@@ -119,4 +119,4 @@ Update the connection string in `appsettings.json`:
 
 ## License
 
-Internal Shell project - Not for public distribution
+Personal learning project - MIT License

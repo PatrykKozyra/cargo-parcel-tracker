@@ -1,14 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using CargoParcelTracker.Models;
 using CargoParcelTracker.Repositories.Interfaces;
 using CargoParcelTracker.ViewModels;
+using CargoParcelTracker.Hubs;
 
 namespace CargoParcelTracker.Controllers
 {
     /// <summary>
     /// Controller for managing CargoParcel entities with full CRUD operations
     /// Demonstrates custom validation, filtering, and TempData messaging
+    /// Includes SignalR for real-time updates
     /// Traders can view/create parcels, Admins have full access
     /// </summary>
     [Authorize(Roles = "Trader,Admin")]
@@ -16,13 +19,16 @@ namespace CargoParcelTracker.Controllers
     {
         private readonly ICargoParcelRepository _parcelRepository;
         private readonly ILogger<CargoParcelsController> _logger;
+        private readonly IHubContext<ParcelStatusHub> _hubContext;
 
         public CargoParcelsController(
             ICargoParcelRepository parcelRepository,
-            ILogger<CargoParcelsController> logger)
+            ILogger<CargoParcelsController> logger,
+            IHubContext<ParcelStatusHub> hubContext)
         {
             _parcelRepository = parcelRepository ?? throw new ArgumentNullException(nameof(parcelRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
         }
 
         // GET: CargoParcels
@@ -125,6 +131,17 @@ namespace CargoParcelTracker.Controllers
 
                 _logger.LogInformation("Created new cargo parcel: {ParcelName}", parcel.ParcelName);
 
+                // Broadcast real-time notification via SignalR
+                await _hubContext.Clients.Group("ParcelUpdates").SendAsync("NewParcelCreated", new
+                {
+                    parcelId = parcel.Id,
+                    parcelName = parcel.ParcelName,
+                    crudeGrade = parcel.CrudeGrade,
+                    quantity = parcel.QuantityBbls,
+                    userName = User.Identity?.Name ?? "Unknown",
+                    timestamp = DateTime.UtcNow
+                });
+
                 TempData["Success"] = $"Cargo parcel '{parcel.ParcelName}' created successfully!";
                 return RedirectToAction(nameof(Index));
             }
@@ -199,6 +216,9 @@ namespace CargoParcelTracker.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
+                // Store old status for real-time notification
+                var oldStatus = parcel.Status;
+
                 parcel.ParcelName = viewModel.ParcelName;
                 parcel.CrudeGrade = viewModel.CrudeGrade;
                 parcel.QuantityBbls = viewModel.QuantityBbls;
@@ -213,6 +233,20 @@ namespace CargoParcelTracker.Controllers
 
                 _logger.LogInformation("Updated cargo parcel: {ParcelName} (ID: {ParcelId})",
                     parcel.ParcelName, parcel.Id);
+
+                // Broadcast status change if status was updated
+                if (oldStatus != parcel.Status)
+                {
+                    await _hubContext.Clients.Group("ParcelUpdates").SendAsync("ParcelStatusChanged", new
+                    {
+                        parcelId = parcel.Id,
+                        parcelName = parcel.ParcelName,
+                        oldStatus = oldStatus.ToString(),
+                        newStatus = parcel.Status.ToString(),
+                        userName = User.Identity?.Name ?? "Unknown",
+                        timestamp = DateTime.UtcNow
+                    });
+                }
 
                 TempData["Success"] = $"Cargo parcel '{parcel.ParcelName}' updated successfully!";
                 return RedirectToAction(nameof(Details), new { id = parcel.Id });

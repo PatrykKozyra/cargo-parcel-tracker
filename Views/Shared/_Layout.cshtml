@@ -10,7 +10,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark">
+        <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     Cargo Parcel Tracker
@@ -22,26 +22,26 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Vessels" asp-action="Index">Vessels</a>
+                            <a class="nav-link" asp-area="" asp-controller="Vessels" asp-action="Index">Vessels</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="CargoParcels" asp-action="Index">Cargo Parcels</a>
+                            <a class="nav-link" asp-area="" asp-controller="CargoParcels" asp-action="Index">Cargo Parcels</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="VoyageAllocations" asp-action="Index">Voyage Allocations</a>
+                            <a class="nav-link" asp-area="" asp-controller="VoyageAllocations" asp-action="Index">Voyages</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
+                            <a class="nav-link" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
                         </li>
                     </ul>
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav ms-auto">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-light" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     👤 @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
@@ -49,7 +49,7 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                            <button type="submit" class="dropdown-item">Sign Out</button>
+                                            <button type="submit" class="dropdown-item">🚪 Sign Out</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -58,10 +58,10 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">🔐 Login</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-controller="Account" asp-action="Register">Register</a>
+                                <a class="nav-link btn btn-primary text-white" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         }
                     </ul>
@@ -78,7 +78,7 @@
 
     <footer class="footer">
         <div class="container">
-            &copy; 2025 Shell - Cargo Parcel Tracker | Powered by .NET 10 & EF Core
+            &copy; 2025 Maritime Logistics Inc - Cargo Parcel Tracker | Powered by .NET 10 & EF Core
         </div>
     </footer>
 
